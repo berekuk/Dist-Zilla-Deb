@@ -3,6 +3,8 @@ package Dist::Zilla::App::Command::debc;
 use strict;
 use warnings;
 
+# ABSTRACT: run debc on generated debian package
+
 use Dist::Zilla::App -command;
 use Yandex::X;
 

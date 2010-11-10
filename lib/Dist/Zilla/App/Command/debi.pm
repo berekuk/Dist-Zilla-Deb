@@ -3,6 +3,8 @@ package Dist::Zilla::App::Command::debi;
 use strict;
 use warnings;
 
+# ABSTRACT: install generated debian package
+
 use Dist::Zilla::App -command;
 use Yandex::X;
 

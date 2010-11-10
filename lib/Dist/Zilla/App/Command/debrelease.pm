@@ -3,6 +3,8 @@ package Dist::Zilla::App::Command::debrelease;
 use strict;
 use warnings;
 
+# ABSTRACT: build and release debian package
+
 use Dist::Zilla::App -command;
 require Dist::Zilla::App::Command::debuild;
 use Yandex::X;
