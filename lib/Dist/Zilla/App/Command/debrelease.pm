@@ -5,6 +5,12 @@ use warnings;
 
 # ABSTRACT: build and release debian package
 
+=head1 DESCRIPTION
+
+This command runs 'debrelease' command on sources built with 'dzil debuild'.
+
+=cut
+
 use Dist::Zilla::App -command;
 require Dist::Zilla::App::Command::debuild;
 use Yandex::X;
@@ -16,7 +22,7 @@ sub opt_spec {}
 sub execute {
     my ($self, $opt, $args) = @_;
     $self->app->execute_command($self->app->prepare_command('debuild'));
-    xsystem('cd .debuild/source && debrelease');
+    xsystem('cd debuild/source && debrelease');
 }
 
 1;

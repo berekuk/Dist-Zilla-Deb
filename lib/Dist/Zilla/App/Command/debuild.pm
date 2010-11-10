@@ -5,6 +5,14 @@ use warnings;
 
 # ABSTRACT: build debian package
 
+=head1 DESCRIPTION
+
+This command builds sources using dzil and runs debuild on them.
+
+Sources are kept in 'debuild/source'.
+
+=cut
+
 use Dist::Zilla::App -command;
 use Yandex::X;
 
@@ -15,10 +23,10 @@ sub opt_spec {}
 sub execute {
     my ($self, $opt, $args) = @_;
 
-    xsystem('rm -rf .debuild');
-    xmkdir('.debuild');
-    $self->zilla->build_in('.debuild/source');
-    xsystem('cd .debuild/source && debuild');
+    xsystem('rm -rf debuild');
+    xmkdir('debuild');
+    $self->zilla->build_in('debuild/source');
+    xsystem('cd debuild/source && debuild');
 }
 
 1;
