@@ -1,0 +1,4 @@
+Revision history for Dist-Zilla-Deb
+
+{{$NEXT}}
+        Initial release: 'debuild', 'debc', 'debi' and 'debrelease' commands implemented.
