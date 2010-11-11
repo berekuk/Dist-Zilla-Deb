@@ -12,7 +12,7 @@ This command runs 'sudo debi' command on sources built with 'dzil debuild'.
 =cut
 
 use Dist::Zilla::App -command;
-use Yandex::X;
+use autodie qw(:all);
 
 sub abstract { 'install generated debian package' }
 
@@ -20,7 +20,7 @@ sub opt_spec {}
 
 sub execute {
     my ($self, $opt, $args) = @_;
-    xsystem('cd debuild/source && sudo debi');
+    system('cd debuild/source && sudo debi');
 }
 
 1;

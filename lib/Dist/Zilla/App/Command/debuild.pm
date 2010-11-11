@@ -14,7 +14,7 @@ Sources are kept in 'debuild/source'.
 =cut
 
 use Dist::Zilla::App -command;
-use Yandex::X;
+use autodie qw(:all);
 
 sub abstract { 'build debian package' }
 
@@ -23,10 +23,10 @@ sub opt_spec {}
 sub execute {
     my ($self, $opt, $args) = @_;
 
-    xsystem('rm -rf debuild');
-    xmkdir('debuild');
+    system('rm -rf debuild');
+    mkdir('debuild');
     $self->zilla->build_in('debuild/source');
-    xsystem('cd debuild/source && debuild');
+    system('cd debuild/source && debuild');
 }
 
 1;
