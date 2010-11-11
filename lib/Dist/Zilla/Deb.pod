@@ -1,0 +1,2 @@
+package Dist::Zilla::Deb;
+# ABSTRACT: Debian-specific commands and plugins for Dist::Zilla
