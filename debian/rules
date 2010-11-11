@@ -1,0 +1,61 @@
+#!/usr/bin/make -f
+
+# If set to a true value then MakeMaker's prompt function will
+# always return the default without waiting for user input.
+export PERL_MM_USE_DEFAULT=1
+
+PACKAGE=$(shell dh_listpackages)
+
+ifndef PERL
+PERL = /usr/bin/perl
+endif
+
+TMP     =$(CURDIR)/debian/$(PACKAGE)
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+	$(PERL) Makefile.PL INSTALLDIRS=vendor \
+		INSTALLVENDORARCH=/usr/share/perl5/ \
+		VENDORARCHEXP=/usr/share/perl5/
+	$(MAKE)
+	$(MAKE) test
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	dh_clean build-stamp install-stamp
+	[ ! -f Makefile ] || $(MAKE) realclean
+
+install: install-stamp
+install-stamp: build-stamp
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	$(MAKE) install DESTDIR=$(TMP) PREFIX=/usr
+	rm -f $(TMP)/usr/lib/perl/5.8/perllocal.pod
+	touch $@
+
+binary-arch:
+# We have nothing to do here for an architecture-independent package
+
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installexamples
+	dh_installdocs README
+	dh_installchangelogs Changes
+	dh_perl
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+source diff:
+	@echo >&2 'source and diff are obsolete - use dpkg-source -b'; false
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary

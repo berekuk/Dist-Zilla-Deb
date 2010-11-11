@@ -1,0 +1,14 @@
+Source: libdist-zilla-deb-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 7)
+Build-Depends-Indep: perl (>= 5.8.8-12), libautodie-perl, libipc-system-simple-perl, libdist-zilla-perl
+Maintainer: Vyacheslav Matjukhin (No comments) <mmcleric@yandex-team.ru>
+Standards-Version: 3.7.2
+Homepage: http://search.cpan.org/dist/Dist-Zilla-Deb/
+
+Package: libdist-zilla-deb-perl
+Architecture: all
+Depends: libdist-zilla-perl, libautodie-perl, libipc-system-simple-perl, ${perl:Depends}, ${misc:Depends}
+Description: Debian-specific commands and plugins for Dist::Zilla
+ This package adds 'debuild', 'debc', 'debi' and 'debrelease' commands to dzil.
