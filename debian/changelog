@@ -1,3 +1,10 @@
+libdist-zilla-deb-perl (0.02) unstable; urgency=low
+
+  * debuild command propagates some options (mostly for the tests)
+  * Deb::VersionFromChangelog plugin implemented
+
+ -- Vyacheslav Matjukhin (No comments) <mmcleric@yandex-team.ru>  Mon, 29 Nov 2010 22:23:05 +0300
+
 libdist-zilla-deb-perl (0.01-1) unstable; urgency=low
 
   * Initial Release.
