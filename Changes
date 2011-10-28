@@ -1,6 +1,7 @@
 Revision history for Dist-Zilla-Deb
 
 {{$NEXT}}
+        * prune tfiles dir from distribution and prevent xt/packages from indexing. #RT 71998.
 
 0.02    Fri Nov 12, 2010
         * debuild command propagates some options (mostly for the tests)
