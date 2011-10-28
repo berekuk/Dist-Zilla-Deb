@@ -1,6 +1,8 @@
 Revision history for Dist-Zilla-Deb
 
 {{$NEXT}}
+
+0.03    Fri Oct 28, 2011
         * prune tfiles dir from distribution and prevent xt/packages from indexing. #RT 71998.
 
 0.02    Fri Nov 12, 2010
