@@ -80,9 +80,11 @@ sub _auto {
 
 	my $control = $debian->file('control');
 	unless( $control->stat ){
-		$self->log('Writing debian/control');
+		my $control_in = $debian->file('control.in');
 
-		my $contents = $self->_generate_control();
+		$self->log('Writing debian/control' . ($control_in->stat ? ' merged from debian/control.in' : ''));
+
+		my $contents = $self->_generate_control($control_in);
 
 		my $fh = $control->openw();
 		$fh->print( $contents );
@@ -91,43 +93,66 @@ sub _auto {
 }
 
 sub _generate_control {
-	my ($self)  = @_;
+	my ($self, $control_in)  = @_;
 
 	# Only load when needed because it's only available on debian
 	require Debian::Control::FromCPAN;
 	require Debian::AptContents;
 
+	my $apt_contents = Debian::AptContents->new( { homedir => "$ENV{HOME}/.dh-make-perl" } );
+
 	my $stash = $self->zilla->stash_named('%Deb');
 
 	my $control = Debian::Control::FromCPAN->new();
-	$control->source->Source( 'lib' . lc($self->zilla->name) . '-perl' );
-	$control->source->Section('perl');
-	$control->source->Priority('optional');
-	$control->source->Maintainer( $self->zilla->authors->[0] );
-	$control->source->Homepage( $self->zilla->distmeta->{resources}{homepage} ) if $self->zilla->distmeta->{resources}{homepage};
-	$control->source->Standards_Version( '3.9.1' );
-	$control->source->Build_Depends( 'debhelper (>= 7)' );
 
-	my $pkg_name = 'lib' . lc($self->zilla->name) . '-perl';
-	my $pkg = Debian::Control::Stanza::Binary->new( { Package => $pkg_name } );
-	$control->binary->Push( $pkg_name => $pkg );
+	if( $control_in->stat ){
+		$control->read($control_in . '');
+	}
 
-	$pkg->Architecture( $stash->architecture );
-	$pkg->Depends->add('${misc:Depends}', '${perl:Depends}');
-	$pkg->Description( join( "\n ", map { $_ || '.' }
-		$self->zilla->abstract,
-		@{$stash->desc},
-	));
+	my $default_name = 'lib' . lc($self->zilla->name) . '-perl';
+	my $default_maint = $self->zilla->authors->[0];
+	my $default_homepage = $self->zilla->distmeta->{resources}{homepage};
 
-	my $apt_contents = Debian::AptContents->new( { homedir => "$ENV{HOME}/.dh-make-perl" } );
+	my $src = $control->source;
 
-	$self->_control_add_prereqs($control, $apt_contents, build => 'requires');
-	$self->_control_add_prereqs($control, $apt_contents, build => 'conflicts');
+	$src->Source(    $default_name      ) unless defined $src->Source;
+	$src->Section(   'perl'             ) unless defined $src->Section;
+	$src->Priority(  'optional'         ) unless defined $src->Priority;
+	$src->Maintainer( $default_maint    ) unless defined $src->Maintainer;
+	$src->Homepage(   $default_homepage ) if not defined $src->Homepage and defined $default_homepage;
+	$src->Standards_Version( '3.9.1'    ) unless defined $src->Standards_Version;
 
-	$self->_control_add_prereqs($control, $apt_contents, runtime => 'requires');
-	$self->_control_add_prereqs($control, $apt_contents, runtime => 'recommends');
-	$self->_control_add_prereqs($control, $apt_contents, runtime => 'suggests');
-	$self->_control_add_prereqs($control, $apt_contents, runtime => 'conflicts');
+	my $has_existing_builddep = @{$src->Build_Depends} > 0 || @{$src->Build_Depends_Indep} > 0;
+	$src->Build_Depends( 'debhelper (>= 7)' ) unless $has_existing_builddep;
+
+	# Only create binary package stanza if there aren't any
+	# existing ones
+	if( $control->binary->Length == 0 ){
+		my $pkg = Debian::Control::Stanza::Binary->new( { Package => $default_name } );
+		$control->binary->Push( $default_name => $pkg );
+	}
+
+	foreach my $pkg ( $control->binary->Values ){
+		my $has_existing_depends = @{$pkg->Depends} > 0;
+
+		$pkg->Architecture( $stash->architecture ) unless defined $pkg->Architecture;
+		$pkg->Depends->add('${misc:Depends}', '${perl:Depends}') unless $has_existing_depends;
+		$pkg->Description( join( "\n ", map { $_ || '.' }
+			$self->zilla->abstract,
+			@{$stash->desc},
+		)) unless defined $pkg->Description;
+
+		$self->_control_add_prereqs($control, $pkg, $apt_contents, runtime => 'requires') unless $has_existing_depends;
+		$self->_control_add_prereqs($control, $pkg, $apt_contents, runtime => 'recommends') unless @{$pkg->Recommends} > 0;
+		$self->_control_add_prereqs($control, $pkg, $apt_contents, runtime => 'suggests') unless @{$pkg->Suggests} > 0;
+		$self->_control_add_prereqs($control, $pkg, $apt_contents, runtime => 'conflicts') unless @{$pkg->Conflicts} > 0;
+	}
+
+	# Build-deps are done after binary packages because they
+	# influence the decition to use Build-Depends or
+	# Build-Depends-Indep
+	$self->_control_add_prereqs($control, $src, $apt_contents, build => 'requires') unless $has_existing_builddep;
+	$self->_control_add_prereqs($control, $src, $apt_contents, build => 'conflicts') unless @{$src->Build_Conflicts} > 0;
 
 	$control->write( \my $control_str );
 
@@ -138,7 +163,7 @@ sub _generate_control {
 # from dzil prerequisites
 
 sub _control_add_prereqs {
-	my( $self, $control, $apt_contents, $phase, $relationship ) = @_;
+	my( $self, $control, $stanza, $apt_contents, $phase, $relationship ) = @_;
 	croak 'invalid phase' unless $phase eq 'build' or $phase eq 'runtime';
 
 	# Find the field in debian/control where we want to put these
@@ -151,10 +176,10 @@ sub _control_add_prereqs {
 	if( $phase eq 'build' ){
 		$control_field = 'Build_' . $debian_relationship;
 		$control_field .= '_Indep' if not $control->is_arch_dep;
-		$control_field = $control->source->$control_field;
+		$control_field = $stanza->$control_field;
 	}
 	else {
-		$control_field = $control->binary->Values(0)->$debian_relationship;
+		$control_field = $stanza->$debian_relationship;
 	}
 
 	# Get the list of required perl modules

@@ -48,8 +48,6 @@ like $source, qr/^Section: perl$/m, '... which has correct section';
 like $source, qr/^Priority: optional$/m, '... and priority';
 like $source, qr/^Build-Depends: debhelper .*, libmoose-perl,/m, '... and build-depends';
 like $source, qr/^Build-Conflicts: libacme-bleach-perl \(>= 9999\)$/m, '... and build-conflicts';
-TODO: {local $TODO = 'TODO'; like $source, qr/^Maintainer: M\. Aintainer <maintainer\@debian\.example\.org>$/m, '... and maintainer'; }
-TODO: {local $TODO = 'TODO'; like $source, qr/^Uploaders: Foo Bar <foo\@example\.org>, Bar Foo <bar\@example\.org>$/m, '... and uploaders'; }
 like $source, qr/^Standards-Version: [\d\.]+$/m, '... and there\'s a standard version';
 like $source, qr|^Homepage: http://useless\.example\.org$|m, '... and correct homepage';
 
