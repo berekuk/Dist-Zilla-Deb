@@ -13,13 +13,16 @@ use Path::Class;
 # Workaround incompatibility between App::Cmd::Tester and CPAN.pm
 require Debian::Control::FromCPAN;
 # Workaround bug in Dist::Zilla::App::Tester
-my $tmpdir = File::Temp::tempdir(CLEANUP => 1);$File::Temp::KEEP_ALL=1;
+my $tmpdir = File::Temp::tempdir(CLEANUP => 1);
 
-my $result = test_dzil('corpus/UseLess', [qw(debuild --us --uc --auto)],{tempdir => $tmpdir} );
-note explain $result->log_events;
+my $result = test_dzil("$FindBin::Bin/packages/UseLess", [qw(debuild --us --uc --auto)],{tempdir => $tmpdir} );
 
 is($result->exit_code, 0, 'dzil debuild --auto ran successfully');
 is($result->error, undef, '... and without throwing any error');
+
+ok( (grep { $_->{message} =~ m|writing\b.*\bdebian/compat|i } @{$result->log_events}), '... and logged that it created compat' );
+ok( (grep { $_->{message} =~ m|writing\b.*\bdebian/rules|i } @{$result->log_events}), '... and logged that it created rules' );
+ok( (grep { $_->{message} =~ m|writing\b.*\bdebian/control|i } @{$result->log_events}), '... and logged that it created control' );
 
 my $build_dir = $result->build_dir->absolute(dir($tmpdir, 'source')); # Hacky workaround for bug!
 
