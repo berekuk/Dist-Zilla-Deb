@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More 0.88;
+
 use autodie;
 use Dist::Zilla::Tester;
 my $tzil = Dist::Zilla::Tester->from_config(
