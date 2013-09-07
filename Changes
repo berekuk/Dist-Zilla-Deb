@@ -1,14 +1,16 @@
-Revision history for Dist-Zilla-Deb
+Revision history for Perl distribution Dist-Zilla-Deb
 
 {{$NEXT}}
 
-0.03    Fri Oct 28, 2011
-        * prune tfiles dir from distribution and prevent xt/packages from indexing. #RT 71998.
+0.03 2011-10-28
+    - prune tfiles dir from distribution and prevent xt/packages from indexing.
+      RT#71998.
 
-0.02    Fri Nov 12, 2010
-        * debuild command propagates some options (mostly for the tests)
-        * Deb::VersionFromChangelog plugin implemented
+0.02 2010-11-12
+    - debuild command propagates some options (mostly for the tests)
+    - Deb::VersionFromChangelog plugin implemented
 
+0.01 2010-11-11
+    - Initial release
+    - 'debuild', 'debc', 'debi' and 'debrelease' commands implemented.
 
-0.01    Thu Nov 11, 2010
-        Initial release: 'debuild', 'debc', 'debi' and 'debrelease' commands implemented.
