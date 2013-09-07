@@ -1,6 +1,8 @@
 Revision history for Perl distribution Dist-Zilla-Deb
 
 {{$NEXT}}
+    - Reformatted Changes file as per CPAN::Changes::Spec
+      (thanks to github:neilbowers, PR #4)
 
 0.03 2011-10-28
     - prune tfiles dir from distribution and prevent xt/packages from indexing.
