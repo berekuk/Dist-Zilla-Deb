@@ -1,6 +1,8 @@
 Revision history for Perl distribution Dist-Zilla-Deb
 
 {{$NEXT}}
+
+0.04 2013-09-07
     - Reformatted Changes file as per CPAN::Changes::Spec
       (thanks to github:neilbowers, PR #4)
 
