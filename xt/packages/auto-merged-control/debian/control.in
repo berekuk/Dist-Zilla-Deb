@@ -1,0 +1,9 @@
+Source: libauto-merged-control-perl
+Maintainer: M. Aintainer <maintainer@debian.example.org>
+Uploaders: Foo Bar <foo@example.org>, Bar Foo <bar@example.org>
+
+Package: libauto-merged-control-perl-foo
+
+Package: libauto-merged-control-perl-bar
+Architecture: all
+Description: second package description
